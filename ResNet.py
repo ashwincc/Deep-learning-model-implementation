@@ -9,7 +9,7 @@ from torch._C import _LegacyVariableBase
 import torch.nn as nn
 
 # creating a conv block
-# This block can be used for only ResNet50, ResNet101, ResNet152 architectures
+# This block can be used only for ResNet50, ResNet101, ResNet152 architectures
 
 class ConvBlock(nn.Module):
     def __init__(
@@ -26,6 +26,8 @@ class ConvBlock(nn.Module):
                     2. out_channels : int : Number of kernels at output of each block
                     3. identity_downsample
                     4. stride : int
+
+            Returns a cnn block with provided arguments
         """
         self.expansion = 4 # Ratio between the input channels and output channels
         
@@ -59,7 +61,7 @@ class ConvBlock(nn.Module):
         )
         self.batch_norm_4 = nn.BatchNorm2d(out_channels*self.expansion) 
 
-        self.relu = nn.ReLU()
+        self.relu = nn.ReLU(inplace=True)
         self.identity_downsample = identity_downsample
 
     
@@ -154,7 +156,10 @@ class ResNet(nn.Module):
 
     def _make_layer(self, cnn_block, num_residual_blocks, out_channels, stride):
         """
-            Creates a layer with the Cnn Block instance
+            Args:
+                Creates a layer with the Cnn Block instance
+
+            And Returns a sequential layer of the block
         """
         identity_downsample = None
         layers = []
@@ -183,6 +188,7 @@ class ResNet(nn.Module):
         return nn.Sequential(*layers)
 
 
+# ResNet Models with 50, 101, 152 layers
 def ResNet50(img_channel=3, num_classes=1000):
     return ResNet(ConvBlock, [3, 4, 6, 3], img_channel, num_classes)
 
